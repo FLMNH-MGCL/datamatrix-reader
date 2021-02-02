@@ -1,0 +1,8 @@
+.DS_Store
+testing
+test_images
+*.jpg
+target
+Cargo.lock
+.vscode
+test.txt
