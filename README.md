@@ -2,7 +2,7 @@
 
 Locate and decode datamatrix information from specimen images, created for the Digitization Department of the McGuire Center for Lepidoptera at the Florida Museum of Natural History. Given a collection of specimen images, the program will decode the datamatrix inside each image and rename / sort them according to a predefined, standardized naming scheme. Successful reads and edits, as well as failures, will be logged accordingly.
 
-The are currently two versions of this program: one written in Python and a port over to Rust. They both serve the same purpose and may be used somewhat interchangeably. With Rust, commandline arguments will be used as opposed to a CLI to handle input during runtime. The Rust variant is more current and performant.
+The are currently two versions of this program: one written in Python and a port over to Rust. They both serve the same purpose and may be used somewhat interchangeably. With Rust, commandline arguments will be used as opposed to a TUI to handle input during runtime. **The Rust variant is more current and performant.**
 
 ### Installation and Usage
 

@@ -1,6 +1,5 @@
 
 mod lib;
-extern crate zbar_rust;
 extern crate image;
 use std::time::Instant; 
 extern crate clap;	

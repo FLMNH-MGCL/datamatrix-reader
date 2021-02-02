@@ -1,9 +1,0 @@
-1). check if listdir keeps ording of files (ie 1.txt is 1st, 2.txt second, etc)
-2). implement cutoff time difference for slower systems in dmread
-3). add menu option for new csv format stuff
-
-1). image start -> image end (range)
-2). for each image IN RANGES:
-  i). scan
-  ii). collect0, interpret and rename using MGCL stuff
-  iii). add genus + species
