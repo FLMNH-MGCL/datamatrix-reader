@@ -2,8 +2,6 @@
 
 Locate and decode datamatrix information from specimen images, created for the Digitization Department of the McGuire Center for Lepidoptera at the Florida Museum of Natural History. Given a collection of specimen images, the program will decode the datamatrix inside each image and rename / sort them according to a predefined, standardized naming scheme. Successful reads and edits, as well as failures, will be logged accordingly.
 
-The are currently two versions of this program: one written in Python ([deprecated](https://github.com/FLMNH-MGCL/datamatrix-reader/tree/python)) and one in Rust. They both serve the same purpose and may be used somewhat interchangeably. With Rust, commandline arguments will be used as opposed to a TUI to handle input during runtime. _**The Rust variant is more current and performant, and should be used over the deprecated Python variant.**_
-
 ### Installation and Usage
 
 This is only compatible with **Linux and MacOS systems**. For both variants, you will need `zbar` and `dmtx-utils` installed on your system. Be sure to install [Rust](https://www.rust-lang.org/) on your system, as well.
