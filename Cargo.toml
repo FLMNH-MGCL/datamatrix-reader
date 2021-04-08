@@ -1,5 +1,5 @@
 [package]
-name = "rust"
+name = "datamatrix-reader"
 version = "0.1.0"
 authors = ["Aaron Leopold <aaronleopold1221@gmail.com>"]
 edition = "2018"
