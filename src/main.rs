@@ -43,7 +43,7 @@ pub fn main() {
     
     let end = start.elapsed();
 
-    println!("\nCompleted... {} files handled in {:?}.", num_files, end);
+    println!("\nCompleted... {} JPG/CR2 pairs handled in {:?}.", num_files, end);
 
     if num_files != 0 {
         println!("Average time per image: {:?}", end / num_files as u32);

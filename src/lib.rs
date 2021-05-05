@@ -168,32 +168,52 @@ pub fn collect(starting_path: &str) -> Vec<std::path::PathBuf> {
         return files;
     }
 
-
     files.sort_by(|a,b| a.as_os_str().cmp(b.as_os_str()));
 
     println!("Files collected in {:?}...\n", end);
 
-
     files
 }
 
-/// Rename file to standardized name recieved from decoding datamatrix data
+/// Renames multiple files to standardized name recieved from decoding datamatrix data.
+/// Finds all images with the same name (e.g. IMG_1000) and renames them accordingly. This is
+/// meant to find the corresponding CR2 images for a JPG.
 ///
 /// # Arguments
 ///
-/// * `old_path` - A String filesystem path, the location of the image
+/// * `base_path` - A String filesystem path, the location of the JPG
 /// * `new_name` - A String of the standardized new name for the image
-fn rename(old_path: String, new_name: String) -> (String, String) {
-    let raw_path = Path::new(old_path.as_str());
-    let parent = raw_path.parent();
+fn rename_all(base_path: String, new_name: String) -> Vec<(String, String)> {
+    let raw_path = Path::new(base_path.as_str());
+    let parent_path = raw_path.parent().unwrap();
+    let old_name = raw_path.file_stem().unwrap();
 
-    let new_path = parent.unwrap().join(new_name).to_str().unwrap().to_string();
+    let pattern = format!("{}/{}.*", parent_path.to_str().unwrap(), old_name.to_str().unwrap());
 
-    // std::fs::rename(old_path.as_str(), new_path);
+    let files_raw: Result<Vec<_>, _>  = glob(pattern.as_str())
+        .unwrap()
+        .collect();
 
-    println!("Old Path: {}\nNew Path: {}\n", old_path, new_path);
+    let files = match files_raw {
+        Ok(v) => v,
+        _ => std::vec::Vec::default()
+    };
 
-    (old_path, new_path)
+    let mut edits: Vec<(String, String)> = Vec::new();
+
+    for path_buffer in files {
+        let ext = path_buffer.extension().unwrap();
+
+        let old_path = path_buffer.to_str().unwrap().to_string();
+        let new_path = parent_path
+            .join(format!("{}.{}", new_name, ext.to_str().unwrap())).to_str().unwrap().to_string();
+
+        std::fs::rename(old_path.as_str(), new_path.clone());   
+
+        edits.push((old_path, new_path));
+    }
+
+    edits
 }
 
 
@@ -253,29 +273,31 @@ pub fn run(starting_path: &str, scan_time: &str, include_barcodes: bool) -> usiz
                     _ => "_MANUAL"
                 };
 
-                let full_name = format!("{}{}.{}", proper_name.clone(), suffix, path_buffer.extension().unwrap().to_str().unwrap());
-
-                edits.insert(path_buffer.to_str().unwrap().to_string(), full_name.clone());
+                let full_name = format!("{}{}", proper_name.clone(), suffix);
 
                 println!("success!\nProper name determined to be: {}\n", full_name);
+
+                for (old, new) in rename_all(path_buffer.to_str().unwrap().to_string(), full_name.clone()) {
+                    edits.insert(old, new);
+                }
 
                 occurrences.push(path_buffer.to_str().unwrap().to_string())
 
             })
             .or_insert_with(|| {
-                let full_name = format!("{}{}.{}", proper_name.clone(), "_D", path_buffer.extension().unwrap().to_str().unwrap());
-
-                edits.insert(path_buffer.to_str().unwrap().to_string(), full_name.clone());
+                let full_name = format!("{}{}", proper_name.clone(), "_D");
 
                 println!("success!\nProper name determined to be: {}\n", full_name);
+
+                for (old, new) in rename_all(path_buffer.to_str().unwrap().to_string(), full_name.clone()) {
+                    edits.insert(old, new);
+                }
 
                 vec![path_buffer.to_str().unwrap().to_string()]
             });
     }
 
-    println!("All computations completed...\n");
-
-    println!("Initiating renaming procedure...");
+    println!("All computations and renaming completed...\n");
 
     let now = Utc::now();
     let (_, year) = now.year_ce();
@@ -289,10 +311,8 @@ pub fn run(starting_path: &str, scan_time: &str, include_barcodes: bool) -> usiz
     let mut wtr = csv::Writer::from_path(log_path.clone()).unwrap();
     wtr.write_record(&["Old Path", "New Path"]).expect("Uh oh, something went wrong with the CSV writing...");
 
-    for (old,new) in edits {
-        let (old_path, new_path) = rename(old.clone(), new.clone());
-
-        wtr.write_record(&[old_path, new_path]).expect("Uh oh, something went wrong with the CSV writing...");
+    for (old, new) in edits {
+        wtr.write_record(&[old.as_str(), new.as_str()]).expect("Uh oh, something went wrong with the CSV writing...");
     }
 
     wtr.flush().expect("Uh oh, something went wrong with the CSV writing...");
